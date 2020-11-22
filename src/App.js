@@ -1,11 +1,12 @@
-import './App.css';
+import 'App.css'
+import Map from 'pages/Map'
 
-function App() {
+function App () {
   return (
-    <div>
-      Wikipedia Map
-    </div>
-  );
+    <>
+      <Map />
+    </>
+  )
 }
 
-export default App;
+export default App
