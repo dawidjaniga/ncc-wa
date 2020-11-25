@@ -1,12 +1,8 @@
 import { Layout } from 'antd'
 import styled from 'styled-components'
+import HeaderComponent from './Header'
 
-const { Header, Content, Footer } = Layout
-
-const Logo = styled.div`
-  font-size: 18px;
-  color: #fff;
-`
+const { Content, Footer } = Layout
 
 const StyledLayout = styled(Layout)`
   display: flex;
@@ -26,9 +22,7 @@ const StyledFooter = styled(Footer)`
 export default function Page ({ children }) {
   return (
     <StyledLayout>
-      <Header>
-        <Logo>Wikipedia Map</Logo>
-      </Header>
+      <HeaderComponent />
       <StyledContent>{children}</StyledContent>
       <StyledFooter>Wikipedia Map ©2020 Created by Janigowski</StyledFooter>
     </StyledLayout>
