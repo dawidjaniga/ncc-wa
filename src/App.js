@@ -1,5 +1,5 @@
 import 'App.css'
-import Map from 'pages/Map'
+import Map from 'pages/map'
 
 function App () {
   return (

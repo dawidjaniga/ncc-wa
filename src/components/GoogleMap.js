@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react'
 import styled from 'styled-components'
-import { useMap } from 'stores/map'
+import useMapPageMediator from 'pages/map/mediator'
 
 const StyledMap = styled.div.attrs({
   id: 'map'
@@ -9,23 +9,12 @@ const StyledMap = styled.div.attrs({
 `
 
 export default function GoogleMap ({ onCenterChanged, markers }) {
-  const [{ loaded }, { onInit, onPlaceChanged }] = useMap()
+  const {googleMapsComponentRendered} = useMapPageMediator()
 
   useEffect(() => {
-    onInit()
+    googleMapsComponentRendered()
     // eslint-disable-next-line
   }, [])
-
-  useEffect(() => {
-    if (loaded) {
-      const input = document.getElementById('search-address')
-      const searchBox = new window.google.maps.places.SearchBox(input)
-
-      searchBox.addListener('places_changed', () => {
-        onPlaceChanged(searchBox.getPlaces())
-      })
-    }
-  }, [loaded, onPlaceChanged])
 
   // useEffect(() => {
   //   if (map) {

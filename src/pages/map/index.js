@@ -9,12 +9,12 @@ export default function Map () {
 
   async function handleCenterChanged (latLng) {
     try {
-      const results = await WikipediaApi.getArticles({
-        coord: latLng.toJSON(),
-        limit: 50
-      })
+      // const results = await WikipediaApi.getArticles({
+      //   coord: latLng.toJSON(),
+      //   limit: 50
+      // })
 
-      setMarkers(results.query.geosearch)
+      // setMarkers(results.query.geosearch)
     } catch (e) {
       console.error('Getting articles error:', e)
     }

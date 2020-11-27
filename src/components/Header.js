@@ -3,7 +3,9 @@ import styled from 'styled-components'
 import { Input } from 'antd'
 
 import { Layout } from 'antd'
-import { useMap } from 'stores/map'
+import { useMapStore } from 'pages/map/store'
+import useMapPageMediator from 'pages/map/mediator'
+
 
 const { Header } = Layout
 
@@ -26,7 +28,8 @@ const SearchBox = styled(Input).attrs({
 `
 
 export default function HeaderComponent () {
-  const [{ loaded }, { onPlaceChanged }] = useMap()
+  const {userSelectsPlaceInSearchBox} = useMapPageMediator()
+  const [{ loaded } ] = useMapStore()
 
   useEffect(() => {
     if (loaded) {
@@ -34,10 +37,16 @@ export default function HeaderComponent () {
       const searchBox = new window.google.maps.places.SearchBox(input)
 
       searchBox.addListener('places_changed', () => {
-        onPlaceChanged(searchBox.getPlaces())
+        const firstPlace = searchBox.getPlaces()[0]
+        const { name, formatted_address: address, geometry} = firstPlace
+        const position = geometry.location.toJSON()
+        
+        userSelectsPlaceInSearchBox({name, address, position })
       })
     }
-  }, [loaded, onPlaceChanged])
+
+  // eslint-disable-next-line
+  }, [loaded])
 
   return (
     <StyledHeader>
