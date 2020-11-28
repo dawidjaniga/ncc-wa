@@ -27,7 +27,7 @@ const SearchBox = styled(Input).attrs({
 `
 
 export default function HeaderComponent () {
-  const { userSelectsPlaceInSearchBox } = useMapPageMediator()
+  const { userSelectedAddressInSearchBox } = useMapPageMediator()
   const [{ loaded }] = useMapStore()
 
   useEffect(() => {
@@ -39,7 +39,7 @@ export default function HeaderComponent () {
         const firstPlace = searchBox.getPlaces()[0]
         const { name, formatted_address: address, geometry } = firstPlace
         const position = geometry.location.toJSON()
-        userSelectsPlaceInSearchBox({ name, address, position })
+        userSelectedAddressInSearchBox({ name, address, position })
       })
     }
 

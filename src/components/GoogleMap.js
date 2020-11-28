@@ -32,20 +32,17 @@ const Circle = styled.div`
 `
 
 function PopoverOuter ({ title, children }) {
-  const { mouseEnteredPopover } = useMapPageMediator()
+  const { userHoveredMarker } = useMapPageMediator()
 
   function handleMouseEnter () {
-    mouseEnteredPopover(title)
+    userHoveredMarker(title)
   }
 
   return <div onMouseEnter={handleMouseEnter}>{children}</div>
 }
 
-export default function GoogleMap ({ onCenterChanged }) {
-  const {
-    googleMapsComponentRendered,
-    googleMapsCenterChanged
-  } = useMapPageMediator()
+export default function GoogleMap () {
+  const { mapComponentRendered, mapCenterChanged } = useMapPageMediator()
   const [{ markers, map }] = useMapStore()
 
   return (
@@ -58,8 +55,8 @@ export default function GoogleMap ({ onCenterChanged }) {
         defaultCenter={map.center}
         defaultZoom={map.zoom}
         yesIWantToUseGoogleMapApiInternals
-        onGoogleApiLoaded={googleMapsComponentRendered}
-        onChange={googleMapsCenterChanged}
+        onGoogleApiLoaded={mapComponentRendered}
+        onChange={mapCenterChanged}
         options={{
           styles: styles.blue,
           minZoom: 10

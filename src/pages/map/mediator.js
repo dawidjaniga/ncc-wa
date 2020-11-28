@@ -1,6 +1,7 @@
 import { useMapStore } from './store'
 import WikipediaApi from 'api/Wikipedia'
 
+const maxArticles = 500
 let map
 
 export default function useMediator () {
@@ -10,14 +11,32 @@ export default function useMediator () {
     map.setCenter(position)
   }
 
+  async function getArticles (position) {
+    const results = await WikipediaApi.getArticles({
+      coord: position,
+      limit: maxArticles
+    })
+
+    const markers = results.query.geosearch.map(article => {
+      return {
+        id: article.pageid,
+        title: article.title,
+        lat: article.lat,
+        lng: article.lon,
+        color: 'orange'
+      }
+    })
+    addMarkers(markers)
+  }
+
   const api = {
-    async googleMapsComponentRendered ({ map: mapInstance, maps: googleMaps }) {
+    async mapComponentRendered ({ map: mapInstance, maps: googleMaps }) {
       map = mapInstance
       window.maps = googleMaps
 
       setMapLoaded(true)
     },
-    async userSelectsPlaceInSearchBox (place) {
+    async userSelectedAddressInSearchBox (place) {
       const { position } = place
       const { lat, lng } = position
 
@@ -29,14 +48,13 @@ export default function useMediator () {
           color: 'red'
         }
       ])
-
       centerMap(position)
       await getArticles(position)
     },
-    async googleMapsCenterChanged ({ center, zoom, bounds, marginBounds }) {
+    async mapCenterChanged ({ center, zoom, bounds, marginBounds }) {
       await getArticles(center)
     },
-    async mouseEnteredPopover (title) {
+    async userHoveredMarker (title) {
       const article = state.markers.find(marker => marker.title === title)
 
       if (!article.loaded) {
@@ -52,22 +70,4 @@ export default function useMediator () {
   }
 
   return api
-
-  async function getArticles (position) {
-    const results = await WikipediaApi.getArticles({
-      coord: position,
-      limit: 500
-    })
-
-    const markers = results.query.geosearch.map(article => {
-      return {
-        id: article.pageid,
-        title: article.title,
-        lat: article.lat,
-        lng: article.lon,
-        color: 'orange'
-      }
-    })
-    addMarkers(markers)
-  }
 }
