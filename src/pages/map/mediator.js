@@ -2,7 +2,6 @@ import { useMapStore } from './store'
 import WikipediaApi from 'api/Wikipedia'
 
 let map
-let maps
 
 // const loader = new Loader({
 //   apiKey: process.env.REACT_APP_GOOGLE_MAPS_API_KEY,
@@ -10,7 +9,7 @@ let maps
 //   libraries: ['places']
 // })
 export default function useMediator () {
-  const [state, { setMapLoaded, clearMarkers, addMarkers }] = useMapStore()
+  const [, { setMapLoaded, addMarkers }] = useMapStore()
 
   function centerMap (position) {
     map.setCenter(position)
@@ -22,7 +21,6 @@ export default function useMediator () {
       window.maps = googleMaps
 
       setMapLoaded(true)
-      await getArticles(map.getCenter().toJSON())
     },
     async userSelectsPlaceInSearchBox (place) {
       const { position } = place
