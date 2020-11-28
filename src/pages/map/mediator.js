@@ -30,14 +30,18 @@ export default function useMediator () {
   function createMap () {
     if (window.google) {
       map = new window.google.maps.Map(document.getElementById('map'), {
-        center: { lat: state.map.center.lat, lng: state.map.center.lat },
-        zoom: state.map.zoom
-        // minZoom: 14
+        center: { lat: state.map.center.lat, lng: state.map.center.lng },
+        zoom: state.map.zoom,
+        minZoom: 12
       })
 
-      // map.addListener('dragend', (...args) => {
-      //   actions.onDragEnd(map.getCenter())
-      // })
+      if (true) {
+        window.mainmap = map
+      }
+
+      map.addListener('dragend', () => {
+        api.googleMapsCenterChanged()
+      })
     } else {
       console.error('Google API not loaded')
     }
@@ -60,10 +64,11 @@ export default function useMediator () {
   }
 
   const api = {
-    googleMapsComponentRendered () {
+    async googleMapsComponentRendered () {
       loader.load().then(async () => {
         createMap()
         setMapLoaded(true)
+        await getArticles(map.getCenter().toJSON())
       })
     },
     async userSelectsPlaceInSearchBox (place) {
@@ -75,30 +80,37 @@ export default function useMediator () {
       })
       centerMap(position)
 
-      const results = await WikipediaApi.getArticles({
-        coord: position,
-        limit: 50
-      })
-
-      results.query.geosearch.forEach(article => {
-        var infowindow = new window.google.maps.InfoWindow({
-          content: article.title
-        })
-
-        const marker = addMarker({
-          position: {
-            lat: article.lat,
-            lng: article.lon
-          },
-          iconName: 'library'
-        })
-
-        window.google.maps.event.addListener(marker, 'click', function () {
-          infowindow.open(map, marker)
-        })
-        console.log(article)
-      })
+      await getArticles(position)
+    },
+    async googleMapsCenterChanged () {
+      await getArticles(map.getCenter().toJSON())
     }
   }
   return api
+
+  async function getArticles (position) {
+    const results = await WikipediaApi.getArticles({
+      coord: position,
+      limit: 50
+    })
+    console.log(results)
+
+    results.query.geosearch.forEach(article => {
+      var infowindow = new window.google.maps.InfoWindow({
+        content: article.title
+      })
+
+      const marker = addMarker({
+        position: {
+          lat: article.lat,
+          lng: article.lon
+        },
+        iconName: 'library'
+      })
+
+      window.google.maps.event.addListener(marker, 'click', function () {
+        infowindow.open(map, marker)
+      })
+    })
+  }
 }

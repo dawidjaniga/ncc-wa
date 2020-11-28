@@ -9,28 +9,12 @@ const StyledMap = styled.div.attrs({
 `
 
 export default function GoogleMap ({ onCenterChanged, markers }) {
-  const {googleMapsComponentRendered} = useMapPageMediator()
+  const { googleMapsComponentRendered } = useMapPageMediator()
 
   useEffect(() => {
     googleMapsComponentRendered()
     // eslint-disable-next-line
   }, [])
-
-  // useEffect(() => {
-  //   if (map) {
-  //     markers.forEach(marker => {
-  //       const position = {
-  //         lat: marker.lat,
-  //         lng: marker.lon
-  //       }
-
-  //       new window.google.maps.Marker({
-  //         position,
-  //         map: map
-  //       })
-  //     })
-  //   }
-  // }, [markers])
 
   return (
     <>

@@ -5,20 +5,21 @@ import { produce } from 'immer'
 defaults.mutator = (currentState, producer) => produce(currentState, producer)
 defaults.devtools = true
 
-
+const gdanskPosition = {
+  lat: 54.35202520000001,
+  lng: 18.6466384
+}
 
 const initialState = {
   loaded: false,
   map: {
-    center: { lat: 54.366667, lng: 18.633333 },
+    center: gdanskPosition,
     zoom: 16
   }
 }
 
 const actions = {
-  onInit: () => ({ setState, getState }) => {
-    
-  },
+  onInit: () => ({ setState, getState }) => {},
   setMapLoaded: value => ({ setState, getState }) => {
     setState(draft => {
       draft.loaded = value
