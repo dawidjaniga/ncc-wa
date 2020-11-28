@@ -1,6 +1,7 @@
 import { Loader } from '@googlemaps/js-api-loader'
 import { useMapStore } from './store'
 import WikipediaApi from 'api/Wikipedia'
+import styles from './MapStyles'
 
 const markers = []
 let map
@@ -32,7 +33,8 @@ export default function useMediator () {
       map = new window.google.maps.Map(document.getElementById('map'), {
         center: { lat: state.map.center.lat, lng: state.map.center.lng },
         zoom: state.map.zoom,
-        minZoom: 12
+        minZoom: 12,
+        styles: styles.blue
       })
 
       if (true) {
