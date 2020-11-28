@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react'
+import React from 'react'
 import styled from 'styled-components'
 import useMapPageMediator from 'pages/map/mediator'
 import GoogleMapReact from 'google-map-react'
@@ -31,6 +31,16 @@ const Circle = styled.div`
   }
 `
 
+function PopoverOuter ({ title, children }) {
+  const { mouseEnteredPopover } = useMapPageMediator()
+
+  function handleMouseEnter () {
+    mouseEnteredPopover(title)
+  }
+
+  return <div onMouseEnter={handleMouseEnter}>{children}</div>
+}
+
 export default function GoogleMap ({ onCenterChanged }) {
   const {
     googleMapsComponentRendered,
@@ -56,16 +66,28 @@ export default function GoogleMap ({ onCenterChanged }) {
         }}
       >
         {markers.map(marker => (
-          <Popover
+          <PopoverOuter
+            title={marker.title}
             key={marker.lat + marker.lng + marker.title}
             lat={marker.lat}
             lng={marker.lng}
-            placement='top'
-            title={marker.title}
-            content={'content'}
           >
-            <Circle color={marker.color} />
-          </Popover>
+            <Popover
+              placement='top'
+              title={marker.title}
+              content={
+                <iframe
+                  src={marker.url?.replace('wikipedia', 'm.wikipedia')}
+                  title={marker.title}
+                  width={800}
+                  height={1000}
+                  style={{ border: 'none' }}
+                />
+              }
+            >
+              <Circle color={marker.color} />
+            </Popover>
+          </PopoverOuter>
         ))}
       </GoogleMapReact>
     </>

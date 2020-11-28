@@ -1,6 +1,6 @@
 import ky from 'ky'
 
-const url = 'https://en.wikipedia.org/w'
+const url = 'https://pl.wikipedia.org/w'
 
 const client = ky.create({
   prefixUrl: url,
@@ -29,6 +29,28 @@ const api = {
           gscoord: coord.lat + '|' + coord.lng,
           gsradius: radius,
           gslimit: limit
+        }
+      })
+      .json()
+  },
+  getArticle ({ title }) {
+    const params = {
+      action: 'query',
+      format: 'json',
+      titles: title,
+      prop: 'info',
+      inprop: 'url',
+      origin: '*'
+    }
+
+    if (!title) {
+      console.error('Wikipedia API: no title passed to getArticle')
+    }
+
+    return client
+      .get(`api.php?`, {
+        searchParams: {
+          ...params
         }
       })
       .json()

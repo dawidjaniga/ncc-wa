@@ -3,13 +3,8 @@ import WikipediaApi from 'api/Wikipedia'
 
 let map
 
-// const loader = new Loader({
-//   apiKey: process.env.REACT_APP_GOOGLE_MAPS_API_KEY,
-//   version: 'weekly',
-//   libraries: ['places']
-// })
 export default function useMediator () {
-  const [, { setMapLoaded, addMarkers }] = useMapStore()
+  const [state, { setMapLoaded, addMarkers, setMarker }] = useMapStore()
 
   function centerMap (position) {
     map.setCenter(position)
@@ -40,8 +35,22 @@ export default function useMediator () {
     },
     async googleMapsCenterChanged ({ center, zoom, bounds, marginBounds }) {
       await getArticles(center)
+    },
+    async mouseEnteredPopover (title) {
+      const article = state.markers.find(marker => marker.title === title)
+
+      if (!article.loaded) {
+        const { query } = await WikipediaApi.getArticle({ title })
+        const result = Object.values(query.pages)[0]
+
+        setMarker(title, {
+          loaded: true,
+          url: result.fullurl
+        })
+      }
     }
   }
+
   return api
 
   async function getArticles (position) {

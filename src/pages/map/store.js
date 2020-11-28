@@ -36,6 +36,19 @@ const actions = {
     setState(draft => {
       draft.markers.push(...newMarkers)
     })
+  },
+  setMarker: (title, data) => ({ setState, getState }) => {
+    const state = getState()
+    const markerIndex = state.markers.findIndex(
+      marker => marker.title === title
+    )
+
+    setState(draft => {
+      draft.markers[markerIndex] = {
+        ...state.markers[markerIndex],
+        ...data
+      }
+    })
   }
 }
 
