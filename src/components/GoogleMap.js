@@ -24,21 +24,42 @@ const Circle = styled.div`
   height: 30px;
   box-shadow: 0px 0px 5px ${props => colors[props.color].shadow};
   opacity: 0.7;
-  transition: opacity 0.2s ease-in-out;
+  transition: all 0.2s ease-in;
+  cursor: pointer;
+  transform: scale(1);
 
   &:hover {
     opacity: 1;
+    transform: scale(1.2);
   }
 `
 
-function PopoverOuter ({ title, children }) {
-  const { userHoveredMarker } = useMapPageMediator()
+function Marker ({ title, url, color }) {
+  const { userHoveredMarker: userOpenedArticle } = useMapPageMediator()
 
-  function handleMouseEnter () {
-    userHoveredMarker(title)
+  function handleVisibleChange () {
+    userOpenedArticle(title)
   }
 
-  return <div onMouseEnter={handleMouseEnter}>{children}</div>
+  return (
+    <Popover
+      trigger='click'
+      placement='top'
+      title={title}
+      onVisibleChange={handleVisibleChange}
+      content={
+        <iframe
+          src={url?.replace('wikipedia', 'm.wikipedia')}
+          title={title}
+          width={1000}
+          height={700}
+          style={{ border: 'none' }}
+        />
+      }
+    >
+      <Circle color={color} />
+    </Popover>
+  )
 }
 
 export default function GoogleMap () {
@@ -63,28 +84,14 @@ export default function GoogleMap () {
         }}
       >
         {markers.map(marker => (
-          <PopoverOuter
+          <Marker
             title={marker.title}
             key={marker.lat + marker.lng + marker.title}
             lat={marker.lat}
             lng={marker.lng}
-          >
-            <Popover
-              placement='top'
-              title={marker.title}
-              content={
-                <iframe
-                  src={marker.url?.replace('wikipedia', 'm.wikipedia')}
-                  title={marker.title}
-                  width={800}
-                  height={1000}
-                  style={{ border: 'none' }}
-                />
-              }
-            >
-              <Circle color={marker.color} />
-            </Popover>
-          </PopoverOuter>
+            url={marker.url}
+            color={marker.color}
+          ></Marker>
         ))}
       </GoogleMapReact>
     </>
