@@ -20,8 +20,7 @@ const initialState = {
 }
 
 const actions = {
-  onInit: () => ({ setState, getState }) => {},
-  setMapLoaded: value => ({ setState, getState }) => {
+  setMapLoaded: value => ({ setState }) => {
     setState(draft => {
       draft.loaded = value
     })
