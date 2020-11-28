@@ -1,91 +1,47 @@
-import { Loader } from '@googlemaps/js-api-loader'
 import { useMapStore } from './store'
 import WikipediaApi from 'api/Wikipedia'
-import styles from './MapStyles'
 
-const markers = []
 let map
+let maps
 
-const iconBase =
-  'https://developers.google.com/maps/documentation/javascript/examples/full/images/'
-const icons = {
-  parking: {
-    icon: iconBase + 'parking_lot_maps.png'
-  },
-  library: {
-    icon: iconBase + 'library_maps.png'
-  },
-  info: {
-    icon: iconBase + 'info-i_maps.png'
-  }
-}
-
-const loader = new Loader({
-  apiKey: process.env.REACT_APP_GOOGLE_MAPS_API_KEY,
-  version: 'weekly',
-  libraries: ['places']
-})
+// const loader = new Loader({
+//   apiKey: process.env.REACT_APP_GOOGLE_MAPS_API_KEY,
+//   version: 'weekly',
+//   libraries: ['places']
+// })
 export default function useMediator () {
-  const [state, { setMapLoaded }] = useMapStore()
-
-  function createMap () {
-    if (window.google) {
-      map = new window.google.maps.Map(document.getElementById('map'), {
-        center: { lat: state.map.center.lat, lng: state.map.center.lng },
-        zoom: state.map.zoom,
-        minZoom: 12,
-        styles: styles.blue
-      })
-
-      if (true) {
-        window.mainmap = map
-      }
-
-      map.addListener('dragend', () => {
-        api.googleMapsCenterChanged()
-      })
-    } else {
-      console.error('Google API not loaded')
-    }
-  }
-
-  function addMarker (markerOptions) {
-    const marker = new window.google.maps.Marker({
-      animation: window.google.maps.Animation.DROP,
-      ...markerOptions,
-      icon: icons[markerOptions.iconName].icon,
-      map
-    })
-
-    markers.push(marker)
-    return marker
-  }
+  const [state, { setMapLoaded, clearMarkers, addMarkers }] = useMapStore()
 
   function centerMap (position) {
     map.setCenter(position)
   }
 
   const api = {
-    async googleMapsComponentRendered () {
-      loader.load().then(async () => {
-        createMap()
-        setMapLoaded(true)
-        await getArticles(map.getCenter().toJSON())
-      })
+    async googleMapsComponentRendered ({ map: mapInstance, maps: googleMaps }) {
+      map = mapInstance
+      window.maps = googleMaps
+
+      setMapLoaded(true)
+      await getArticles(map.getCenter().toJSON())
     },
     async userSelectsPlaceInSearchBox (place) {
       const { position } = place
+      const { lat, lng } = position
 
-      addMarker({
-        position,
-        iconName: 'info'
-      })
+      addMarkers([
+        {
+          lat,
+          lng,
+          title: place.name,
+          color: 'red'
+        }
+      ])
+
       centerMap(position)
-
       await getArticles(position)
     },
-    async googleMapsCenterChanged () {
-      await getArticles(map.getCenter().toJSON())
+    async googleMapsCenterChanged ({ center, zoom, bounds, marginBounds }) {
+      await getArticles(center)
     }
   }
   return api
@@ -93,26 +49,18 @@ export default function useMediator () {
   async function getArticles (position) {
     const results = await WikipediaApi.getArticles({
       coord: position,
-      limit: 50
+      limit: 500
     })
-    console.log(results)
 
-    results.query.geosearch.forEach(article => {
-      var infowindow = new window.google.maps.InfoWindow({
-        content: article.title
-      })
-
-      const marker = addMarker({
-        position: {
-          lat: article.lat,
-          lng: article.lon
-        },
-        iconName: 'library'
-      })
-
-      window.google.maps.event.addListener(marker, 'click', function () {
-        infowindow.open(map, marker)
-      })
+    const markers = results.query.geosearch.map(article => {
+      return {
+        id: article.pageid,
+        title: article.title,
+        lat: article.lat,
+        lng: article.lon,
+        color: 'orange'
+      }
     })
+    addMarkers(markers)
   }
 }

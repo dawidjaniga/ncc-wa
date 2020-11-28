@@ -6,7 +6,6 @@ import { Layout } from 'antd'
 import { useMapStore } from 'pages/map/store'
 import useMapPageMediator from 'pages/map/mediator'
 
-
 const { Header } = Layout
 
 const StyledHeader = styled(Header)`
@@ -28,24 +27,23 @@ const SearchBox = styled(Input).attrs({
 `
 
 export default function HeaderComponent () {
-  const {userSelectsPlaceInSearchBox} = useMapPageMediator()
-  const [{ loaded } ] = useMapStore()
+  const { userSelectsPlaceInSearchBox } = useMapPageMediator()
+  const [{ loaded }] = useMapStore()
 
   useEffect(() => {
     if (loaded) {
       const input = document.getElementById('search-address')
-      const searchBox = new window.google.maps.places.SearchBox(input)
+      const searchBox = new window.maps.places.SearchBox(input)
 
       searchBox.addListener('places_changed', () => {
         const firstPlace = searchBox.getPlaces()[0]
-        const { name, formatted_address: address, geometry} = firstPlace
+        const { name, formatted_address: address, geometry } = firstPlace
         const position = geometry.location.toJSON()
-        
-        userSelectsPlaceInSearchBox({name, address, position })
+        userSelectsPlaceInSearchBox({ name, address, position })
       })
     }
 
-  // eslint-disable-next-line
+    // eslint-disable-next-line
   }, [loaded])
 
   return (

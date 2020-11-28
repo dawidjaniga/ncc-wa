@@ -1,24 +1,73 @@
 import React, { useEffect } from 'react'
 import styled from 'styled-components'
 import useMapPageMediator from 'pages/map/mediator'
+import GoogleMapReact from 'google-map-react'
+import { Popover } from 'antd'
+import { useMapStore } from 'pages/map/store'
+import styles from './MapStyles'
 
-const StyledMap = styled.div.attrs({
-  id: 'map'
-})`
-  height: 100%;
+const colors = {
+  orange: {
+    background: '#ff7e23e0',
+    shadow: '#ffa769'
+  },
+  red: {
+    background: '#ff2323b5',
+    shadow: '#ff6969'
+  }
+}
+
+const Circle = styled.div`
+  background-color: ${props => colors[props.color].background};
+  border-radius: 50%;
+  width: 30px;
+  height: 30px;
+  box-shadow: 0px 0px 5px ${props => colors[props.color].shadow};
+  opacity: 0.7;
+  transition: opacity 0.2s ease-in-out;
+
+  &:hover {
+    opacity: 1;
+  }
 `
 
-export default function GoogleMap ({ onCenterChanged, markers }) {
-  const { googleMapsComponentRendered } = useMapPageMediator()
-
-  useEffect(() => {
-    googleMapsComponentRendered()
-    // eslint-disable-next-line
-  }, [])
+export default function GoogleMap ({ onCenterChanged }) {
+  const {
+    googleMapsComponentRendered,
+    googleMapsCenterChanged
+  } = useMapPageMediator()
+  const [{ markers, map }] = useMapStore()
 
   return (
     <>
-      <StyledMap></StyledMap>
+      <GoogleMapReact
+        bootstrapURLKeys={{
+          key: process.env.REACT_APP_GOOGLE_MAPS_API_KEY,
+          libraries: ['places']
+        }}
+        defaultCenter={map.center}
+        defaultZoom={map.zoom}
+        yesIWantToUseGoogleMapApiInternals
+        onGoogleApiLoaded={googleMapsComponentRendered}
+        onChange={googleMapsCenterChanged}
+        options={{
+          styles: styles.blue,
+          minZoom: 10
+        }}
+      >
+        {markers.map(marker => (
+          <Popover
+            key={marker.lat + marker.lng + marker.title}
+            lat={marker.lat}
+            lng={marker.lng}
+            placement='top'
+            title={marker.title}
+            content={'content'}
+          >
+            <Circle color={marker.color} />
+          </Popover>
+        ))}
+      </GoogleMapReact>
     </>
   )
 }

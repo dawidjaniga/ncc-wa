@@ -12,6 +12,7 @@ const gdanskPosition = {
 
 const initialState = {
   loaded: false,
+  markers: [],
   map: {
     center: gdanskPosition,
     zoom: 16
@@ -25,11 +26,16 @@ const actions = {
       draft.loaded = value
     })
   },
-  onDragEnd: center => ({ setState, getState }) => {
-    console.log('on DragEnd ', center)
-  },
-  onPlaceChanged: places => ({ setState, getState }) => {
-    console.log('onPlaceChanged', places)
+  addMarkers: markers => ({ setState, getState }) => {
+    const state = getState()
+    const existingMarkers = state.markers.map(marker => marker.title)
+    const newMarkers = markers.filter(
+      marker => !existingMarkers.includes(marker.title)
+    )
+
+    setState(draft => {
+      draft.markers.push(...newMarkers)
+    })
   }
 }
 
