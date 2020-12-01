@@ -79,7 +79,7 @@ export default function GoogleMap () {
         onGoogleApiLoaded={mapComponentRendered}
         onChange={mapCenterChanged}
         options={{
-          styles: styles.blue,
+          styles: styles.blueblack,
           minZoom: 10
         }}
       >
