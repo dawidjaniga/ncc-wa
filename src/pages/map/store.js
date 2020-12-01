@@ -13,6 +13,8 @@ const gdanskPosition = {
 const initialState = {
   loaded: false,
   markers: [],
+  currentMarkerTitle: '',
+  visible: false,
   map: {
     center: gdanskPosition,
     zoom: 16
@@ -48,9 +50,27 @@ const actions = {
         ...data
       }
     })
+  },
+  setCurrentMarker: (title) => ({ setState, getState }) => {
+    setState(draft => {
+      draft.currentMarkerTitle = title
+    })
+  },
+  closeModal: () => ({ setState, getState }) => {
+    setState(draft => {
+      draft.visible = false
+    })
+  },
+  showModal: () => ({ setState, getState }) => {
+    setState(draft => {
+      draft.visible = true
+    })
   }
 }
 
 const Store = createStore({ initialState, actions })
 
 export const useMapStore = createHook(Store)
+export const useCurrentMarkerStore = createHook(Store, {
+  selector: (state, props) => state.markers.find(marker => marker.title === state.currentMarkerTitle) || {}
+})

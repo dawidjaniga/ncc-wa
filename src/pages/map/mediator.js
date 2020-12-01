@@ -1,11 +1,11 @@
 import { useMapStore } from './store'
 import WikipediaApi from 'api/Wikipedia'
 
-const maxArticles = 500
+const maxArticles = 250
 let map
 
 export default function useMediator () {
-  const [state, { setMapLoaded, addMarkers, setMarker }] = useMapStore()
+  const [state, { setMapLoaded, addMarkers, setMarker,setCurrentMarker, showModal }] = useMapStore()
 
   function centerMap (position) {
     map.setCenter(position)
@@ -54,8 +54,11 @@ export default function useMediator () {
     async mapCenterChanged ({ center, zoom, bounds, marginBounds }) {
       await getArticles(center)
     },
-    async userHoveredMarker (title) {
+    async userClickedMarker (title) {
       const article = state.markers.find(marker => marker.title === title)
+      setCurrentMarker(title)
+      showModal()
+
 
       if (!article.loaded) {
         const { query } = await WikipediaApi.getArticle({ title })

@@ -1,10 +1,11 @@
-import React from 'react'
+import React, { useState } from 'react'
 import styled from 'styled-components'
 import useMapPageMediator from 'pages/map/mediator'
 import GoogleMapReact from 'google-map-react'
-import { Popover } from 'antd'
-import { useMapStore } from 'pages/map/store'
+import { Tooltip } from 'antd'
+import { useCurrentMarkerStore, useMapStore, useMarkerStore } from 'pages/map/store'
 import styles from './MapStyles'
+import { Modal } from 'antd'
 
 const colors = {
   orange: {
@@ -30,44 +31,59 @@ const Circle = styled.div`
 
   &:hover {
     opacity: 1;
-    transform: scale(1.2);
+    /* transform: scale(1.2); */
   }
 `
 
-function Marker ({ title, url, color }) {
-  const { userHoveredMarker: userOpenedArticle } = useMapPageMediator()
+function Marker ({ title, url, color, onClick }) {
+  const { userClickedMarker } = useMapPageMediator()
 
-  function handleVisibleChange () {
-    userOpenedArticle(title)
+  function handleOnClick () {
+    userClickedMarker(title)
   }
 
   return (
-    <Popover
-      trigger='click'
-      placement='top'
-      title={title}
-      onVisibleChange={handleVisibleChange}
-      content={
+    <Tooltip title={title} onClick={handleOnClick}>
+      <Circle color={color} />
+    </Tooltip>
+  )
+}
+
+function ArticleModal() {
+  const [{ visible }] = useMapStore()
+  const [state, { closeModal}] = useCurrentMarkerStore()
+  const { title, url, } = state
+
+
+  return (
+    <Modal
+        title={title}
+        visible={visible}
+        onCancel={closeModal}
+        footer={null}
+        width='80vw'
+        bodyStyle={{
+          height:'80vh',
+        }}
+      >
         <iframe
           src={url?.replace('wikipedia', 'm.wikipedia')}
           title={title}
-          width={1000}
-          height={700}
+          width='100%'
+          height='100%'
           style={{ border: 'none' }}
         />
-      }
-    >
-      <Circle color={color} />
-    </Popover>
+      </Modal>
   )
 }
 
 export default function GoogleMap () {
-  const { mapComponentRendered, mapCenterChanged } = useMapPageMediator()
+  const { mapComponentRendered, mapCenterChanged,  } = useMapPageMediator()
   const [{ markers, map }] = useMapStore()
 
   return (
     <>
+      <ArticleModal />
       <GoogleMapReact
         bootstrapURLKeys={{
           key: process.env.REACT_APP_GOOGLE_MAPS_API_KEY,
