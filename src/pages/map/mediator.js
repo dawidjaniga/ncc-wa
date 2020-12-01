@@ -1,11 +1,15 @@
 import { useMapStore } from './store'
 import WikipediaApi from 'api/Wikipedia'
+import ArticlesDatabase from 'services/ArticlesDatabase'
 
 const maxArticles = 250
 let map
 
 export default function useMediator () {
-  const [state, { setMapLoaded, addMarkers, setMarker,setCurrentMarker, showModal }] = useMapStore()
+  const [
+    state,
+    { setMapLoaded, addMarkers, setMarker, setCurrentMarker, showModal }
+  ] = useMapStore()
 
   function centerMap (position) {
     map.setCenter(position)
@@ -16,14 +20,17 @@ export default function useMediator () {
       coord: position,
       limit: maxArticles
     })
+    ArticlesDatabase.refresh()
 
     const markers = results.query.geosearch.map(article => {
+      const isRead = ArticlesDatabase.isArticleRead(article.title)
+
       return {
         id: article.pageid,
         title: article.title,
         lat: article.lat,
         lng: article.lon,
-        color: 'orange'
+        color: isRead ? 'blue' : 'orange'
       }
     })
     addMarkers(markers)
@@ -59,15 +66,16 @@ export default function useMediator () {
       setCurrentMarker(title)
       showModal()
 
-
       if (!article.loaded) {
         const { query } = await WikipediaApi.getArticle({ title })
         const result = Object.values(query.pages)[0]
 
         setMarker(title, {
           loaded: true,
-          url: result.fullurl
+          url: result.fullurl,
+          color: 'blue'
         })
+        ArticlesDatabase.setArticleAsRead(title)
       }
     }
   }

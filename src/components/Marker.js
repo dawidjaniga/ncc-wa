@@ -10,7 +10,11 @@ const colors = {
     red: {
       background: '#ff2323b5',
       shadow: '#ff6969'
-    }
+    },
+    blue: {
+        background: '#237bffe0',
+        shadow: '#698bff'
+      }
   }
   
   const Circle = styled.div`
