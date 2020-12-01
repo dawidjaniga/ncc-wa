@@ -2,38 +2,10 @@ import React from 'react'
 
 import useMapPageMediator from 'pages/map/mediator'
 import GoogleMapReact from 'google-map-react'
-import { useCurrentMarkerStore, useMapStore } from 'pages/map/store'
+import { useMapStore } from 'pages/map/store'
 import styles from './MapStyles'
-import { Modal } from 'antd'
-import Marker from './Marker'
-
-function ArticleModal() {
-  const [{ visible }] = useMapStore()
-  const [state, { closeModal}] = useCurrentMarkerStore()
-  const { title, url, } = state
-
-
-  return (
-    <Modal
-        title={title}
-        visible={visible}
-        onCancel={closeModal}
-        footer={null}
-        width='80vw'
-        bodyStyle={{
-          height:'80vh',
-        }}
-      >
-        <iframe
-          src={url?.replace('wikipedia', 'm.wikipedia')}
-          title={title}
-          width='100%'
-          height='100%'
-          style={{ border: 'none' }}
-        />
-      </Modal>
-  )
-}
+import Marker from 'components/Marker'
+import ArticleModal from 'components/ArticleModal'
 
 export default function GoogleMap () {
   const { mapComponentRendered, mapCenterChanged,  } = useMapPageMediator()
