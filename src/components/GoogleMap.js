@@ -1,6 +1,6 @@
 import React from 'react'
 
-import useMapPageMediator from 'pages/map/mediator'
+import { emit } from 'pages/map/mediator'
 import GoogleMapReact from 'google-map-react'
 import { useMapStore } from 'pages/map/store'
 import styles from './MapStyles'
@@ -8,7 +8,6 @@ import Marker from 'components/Marker'
 import ArticleModal from 'components/ArticleModal'
 
 export default function GoogleMap () {
-  const { mapComponentRendered, mapCenterChanged,  } = useMapPageMediator()
   const [{ markers, map }] = useMapStore()
 
   return (
@@ -22,8 +21,8 @@ export default function GoogleMap () {
         defaultCenter={map.center}
         defaultZoom={map.zoom}
         yesIWantToUseGoogleMapApiInternals
-        onGoogleApiLoaded={mapComponentRendered}
-        onChange={mapCenterChanged}
+        onGoogleApiLoaded={data => emit('mapComponentRendered', data)}
+        onChange={data => emit('mapCenterChanged', data)}
         options={{
           styles: styles.blueblack,
           minZoom: 10

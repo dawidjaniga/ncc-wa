@@ -4,7 +4,7 @@ import { Input } from 'antd'
 
 import { Layout } from 'antd'
 import { useMapStore } from 'pages/map/store'
-import useMapPageMediator from 'pages/map/mediator'
+import { emit } from 'pages/map/mediator'
 
 const { Header } = Layout
 
@@ -27,7 +27,6 @@ const SearchBox = styled(Input).attrs({
 `
 
 export default function HeaderComponent () {
-  const { userSelectedAddressInSearchBox } = useMapPageMediator()
   const [{ loaded }] = useMapStore()
 
   useEffect(() => {
@@ -39,7 +38,7 @@ export default function HeaderComponent () {
         const firstPlace = searchBox.getPlaces()[0]
         const { name, formatted_address: address, geometry } = firstPlace
         const position = geometry.location.toJSON()
-        userSelectedAddressInSearchBox({ name, address, position })
+        emit('userSelectedAddressInSearchBox', { name, address, position })
       })
     }
 

@@ -5,6 +5,22 @@ import ArticlesDatabase from 'services/ArticlesDatabase'
 const maxArticles = 250
 let map
 
+const listeners = {}
+
+export function emit (event, ...data) {
+  const listener = listeners[event]
+
+  if (listener) {
+    listener(...data)
+  } else {
+    console.warn('MapMediator: no listner attach for event: ', event)
+  }
+}
+
+function attachListener (event, listener) {
+  listeners[event] = listener
+}
+
 export default function useMediator () {
   const [
     state,
@@ -36,49 +52,56 @@ export default function useMediator () {
     addMarkers(markers)
   }
 
-  const api = {
-    async mapComponentRendered ({ map: mapInstance, maps: googleMaps }) {
-      map = mapInstance
-      window.maps = googleMaps
+  async function mapCenterChanged ({ center, zoom, bounds, marginBounds }) {
+    await getArticles(center)
+  }
 
-      setMapLoaded(true)
-    },
-    async userSelectedAddressInSearchBox (place) {
-      const { position } = place
-      const { lat, lng } = position
+  async function mapComponentRendered ({ map: mapInstance, maps: googleMaps }) {
+    map = mapInstance
+    window.maps = googleMaps
 
-      addMarkers([
-        {
-          lat,
-          lng,
-          title: place.name,
-          color: 'red'
-        }
-      ])
-      centerMap(position)
-      await getArticles(position)
-    },
-    async mapCenterChanged ({ center, zoom, bounds, marginBounds }) {
-      await getArticles(center)
-    },
-    async userClickedMarker (title) {
-      const article = state.markers.find(marker => marker.title === title)
-      setCurrentMarker(title)
-      showModal()
+    setMapLoaded(true)
+  }
 
-      if (!article.loaded) {
-        const { query } = await WikipediaApi.getArticle({ title })
-        const result = Object.values(query.pages)[0]
+  async function userSelectedAddressInSearchBox (place) {
+    const { position } = place
+    const { lat, lng } = position
 
-        setMarker(title, {
-          loaded: true,
-          url: result.fullurl,
-          color: 'blue'
-        })
-        ArticlesDatabase.setArticleAsRead(title)
+    addMarkers([
+      {
+        lat,
+        lng,
+        title: place.name,
+        color: 'red'
       }
+    ])
+    centerMap(position)
+    await getArticles(position)
+  }
+
+  async function userClickedMarker (title) {
+    const article = state.markers.find(marker => marker.title === title)
+    setCurrentMarker(title)
+    showModal()
+
+    if (!article.loaded) {
+      const { query } = await WikipediaApi.getArticle({ title })
+      const result = Object.values(query.pages)[0]
+
+      setMarker(title, {
+        loaded: true,
+        url: result.fullurl,
+        color: 'blue'
+      })
+      ArticlesDatabase.setArticleAsRead(title)
     }
   }
 
-  return api
+  attachListener('mapComponentRendered', mapComponentRendered)
+  attachListener('mapCenterChanged', mapCenterChanged)
+  attachListener(
+    'userSelectedAddressInSearchBox',
+    userSelectedAddressInSearchBox
+  )
+  attachListener('userClickedMarker', userClickedMarker)
 }
