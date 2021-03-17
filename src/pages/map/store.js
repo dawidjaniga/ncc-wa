@@ -51,7 +51,7 @@ const actions = {
       }
     })
   },
-  setCurrentMarker: (title) => ({ setState, getState }) => {
+  setCurrentMarker: title => ({ setState, getState }) => {
     setState(draft => {
       draft.currentMarkerTitle = title
     })
@@ -72,5 +72,11 @@ const Store = createStore({ initialState, actions })
 
 export const useMapStore = createHook(Store)
 export const useCurrentMarkerStore = createHook(Store, {
-  selector: (state, props) => state.markers.find(marker => marker.title === state.currentMarkerTitle) || {}
+  selector: (state, props) =>
+    state.markers.find(marker => marker.title === state.currentMarkerTitle) ||
+    {}
+})
+
+export const useMapStoreBySelector = createHook(Store, {
+  selector: (state, selector) => selector(state)
 })

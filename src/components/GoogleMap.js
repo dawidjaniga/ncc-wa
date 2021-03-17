@@ -5,14 +5,12 @@ import GoogleMapReact from 'google-map-react'
 import { useMapStore } from 'pages/map/store'
 import styles from './MapStyles'
 import Marker from 'components/Marker'
-import ArticleModal from 'components/ArticleModal'
 
 export default function GoogleMap () {
   const [{ markers, map }] = useMapStore()
 
   return (
     <>
-      <ArticleModal />
       <GoogleMapReact
         bootstrapURLKeys={{
           key: process.env.REACT_APP_GOOGLE_MAPS_API_KEY,

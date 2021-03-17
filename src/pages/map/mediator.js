@@ -105,3 +105,9 @@ export default function useMediator () {
   )
   attachListener('userClickedMarker', userClickedMarker)
 }
+
+export function MapMediator () {
+  useMediator()
+
+  return null
+}

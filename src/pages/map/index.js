@@ -1,13 +1,14 @@
 import React from 'react'
 import Page from 'components/Page'
 import GoogleMap from 'components/GoogleMap'
-import useMapPageMediator from 'pages/map/mediator'
+import ArticleModal from 'components/ArticleModal'
+import { MapMediator } from 'pages/map/mediator'
 
 export default function Map () {
-  useMapPageMediator()
-
   return (
     <Page>
+      <MapMediator />
+      <ArticleModal />
       <GoogleMap />
     </Page>
   )
